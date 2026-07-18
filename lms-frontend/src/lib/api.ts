@@ -1,8 +1,9 @@
 /**
  * Unified API Client for communicating with the Spring Boot Backend.
- * Since Next.js proxy rewrites `/api/*` to `http://localhost:8081/api/*`,
- * we can fetch relative `/api/...` endpoints directly without CORS issues.
+ * Uses NEXT_PUBLIC_API_URL in production (Vercel) or relative /api/* (local dev rewrites).
  */
+
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 export async function apiFetch<T>(
   endpoint: string,
@@ -26,7 +27,9 @@ export async function apiFetch<T>(
     }
   }
 
-  const response = await fetch(endpoint, {
+  const targetUrl = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`;
+
+  const response = await fetch(targetUrl, {
     ...options,
     headers,
   });
